@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Restaurante Suculento — Ventas</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rojo: #C8102E;
+    --rojo-oscuro: #9B0B22;
+    --rojo-claro: #FFE8EC;
+    --azul: #0A1628;
+    --azul-medio: #1a2a45;
+    --amarillo: #F5C518;
+    --blanco: #FFFFFF;
+    --gris-claro: #F4F4F4;
+    --gris-medio: #E0E0E0;
+    --gris-texto: #666;
+    --verde: #1A7A4A;
+    --verde-claro: #E8F5EE;
+    --morado: #4A1FA8;
+    --morado-claro: #EDE8FF;
+    --sombra: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #F0F2F5;
+    min-height: 100vh;
+    padding-bottom: 2rem;
+  }
+
+  header {
+    background: var(--azul);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo-circle {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--rojo);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 20px;
+    color: white;
+    flex-shrink: 0;
+    border: 2px solid var(--amarillo);
+  }
+
+  .header-text h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 20px;
+    color: var(--blanco);
+    letter-spacing: 1px;
+  }
+
+  .header-text p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+  }
+
+  .fecha-bar {
+    background: var(--azul-medio);
+    padding: 8px 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .fecha-bar span { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .fecha-bar strong { font-size: 13px; color: var(--amarillo); font-weight: 700; }
+
+  .container { max-width: 500px; margin: 0 auto; padding: 1rem; }
+
+  .seccion {
+    background: white;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: var(--sombra);
+  }
+
+  .sec-header {
+    background: var(--azul);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sec-header span {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 16px;
+    color: var(--amarillo);
+    letter-spacing: 1px;
+  }
+
+  .sec-header .linea {
+    flex: 1;
+    height: 1px;
+    background: rgba(245,197,24,0.3);
+  }
+
+  .plato-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--gris-claro);
+    transition: background 0.15s;
+  }
+
+  .plato-item:last-child { border-bottom: none; }
+  .plato-item.marcado { background: var(--rojo-claro); }
+
+  .chk-custom {
+    width: 22px; height: 22px;
+    border: 2px solid var(--gris-medio);
+    border-radius: 6px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    background: white;
+  }
+
+  .chk-custom.checked {
+    background: var(--rojo);
+    border-color: var(--rojo);
+  }
+
+  .chk-custom.checked::after {
+    content: '';
+    width: 6px; height: 10px;
+    border: 2px solid white;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    display: block;
+  }
+
+  .plato-nombre {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--azul);
+    cursor: pointer;
+    line-height: 1.3;
+  }
+
+  .plato-precio {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--rojo);
+    margin-right: 6px;
+    white-space: nowrap;
+  }
+
+  .qty-ctrl {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid var(--gris-medio);
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.2s, border-color 0.2s;
+  }
+
+  .qty-ctrl.activo {
+    opacity: 1;
+    pointer-events: all;
+    border-color: var(--rojo);
+  }
+
+  .qbtn {
+    width: 28px; height: 28px;
+    border: none;
+    background: none;
+    font-size: 18px;
+    color: var(--rojo);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    transition: background 0.1s;
+  }
+
+  .qbtn:active { background: var(--rojo-claro); }
+
+  .qnum {
+    min-width: 26px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--azul);
+    background: var(--gris-claro);
+    height: 28px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .pago-section {
+    background: white;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    box-shadow: var(--sombra);
+  }
+
+  .pago-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gris-texto);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .pago-btns { display: flex; gap: 10px; }
+
+  .pago-btn {
+    flex: 1;
+    height: 44px;
+    border: 2px solid var(--gris-medio);
+    border-radius: 10px;
+    background: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gris-texto);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  .pago-btn.sel-yape {
+    border-color: var(--morado);
+    background: var(--morado-claro);
+    color: var(--morado);
+  }
+
+  .pago-btn.sel-efectivo {
+    border-color: var(--verde);
+    background: var(--verde-claro);
+    color: var(--verde);
+  }
+
+  .btn-registrar {
+    width: 100%;
+    height: 52px;
+    background: var(--rojo);
+    border: none;
+    border-radius: 14px;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: white;
+    cursor: pointer;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 15px rgba(200,16,46,0.35);
+    transition: all 0.15s;
+  }
+
+  .btn-registrar:active { transform: scale(0.98); background: var(--rojo-oscuro); }
+  .btn-registrar:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+
+  /* RESUMEN */
+  .resumen-panel {
+    display: none;
+    background: white;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: var(--sombra);
+  }
+
+  .res-header {
+    background: var(--verde);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .res-header span {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 18px;
+    color: white;
+    letter-spacing: 1px;
+  }
+
+  .check-icon {
+    width: 24px; height: 24px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .check-icon::after {
+    content: '';
+    width: 7px; height: 11px;
+    border: 2.5px solid var(--verde);
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    display: block;
+  }
+
+  .res-body { padding: 14px 16px; }
+
+  .res-fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--gris-claro);
+    font-size: 13px;
+    color: var(--azul);
+  }
+
+  .res-fila:last-child { border: none; }
+  .res-fila .nombre { font-weight: 600; }
+  .res-fila .qty-badge {
+    background: var(--rojo-claro);
+    color: var(--rojo);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: 6px;
+  }
+
+  .res-total {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .tot-card {
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+
+  .tot-card.total { background: var(--azul); }
+  .tot-card.yape { background: var(--morado-claro); }
+  .tot-card.efec { background: var(--verde-claro); }
+
+  .tot-card .tlabel {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+
+  .tot-card.total .tlabel { color: rgba(255,255,255,0.6); }
+  .tot-card.yape .tlabel { color: var(--morado); }
+  .tot-card.efec .tlabel { color: var(--verde); }
+
+  .tot-card .tval {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .tot-card.total .tval { color: var(--amarillo); }
+  .tot-card.yape .tval { color: var(--morado); }
+  .tot-card.efec .tval { color: var(--verde); }
+
+  .historial-section {
+    background: white;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: var(--sombra);
+    display: none;
+  }
+
+  .hist-header {
+    background: var(--azul-medio);
+    padding: 8px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .hist-header span {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 15px;
+    color: rgba(255,255,255,0.8);
+    letter-spacing: 1px;
+  }
+
+  .hist-item {
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--gris-claro);
+    font-size: 12px;
+    color: var(--gris-texto);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hist-item:last-child { border: none; }
+  .hist-num { font-weight: 700; color: var(--azul); margin-right: 6px; }
+  .hist-monto { font-weight: 700; color: var(--rojo); }
+  .hist-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+  }
+
+  .hb-yape { background: var(--morado-claro); color: var(--morado); }
+  .hb-efec { background: var(--verde-claro); color: var(--verde); }
+
+  .btn-nuevo {
+    width: 100%;
+    height: 46px;
+    background: white;
+    border: 2px solid var(--azul);
+    border-radius: 14px;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    color: var(--azul);
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: all 0.15s;
+  }
+
+  .btn-nuevo:active { background: var(--azul); color: white; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--azul);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--rojo); }
+
+  .enviando {
+    display: none;
+    text-align: center;
+    padding: 12px;
+    font-size: 13px;
+    color: var(--gris-texto);
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-circle">S</div>
+  <div class="header-text">
+    <h1>Restaurante Suculento</h1>
+    <p>Registro de ventas diarias</p>
+  </div>
+</header>
+
+<div class="fecha-bar">
+  <span>Fecha</span>
+  <strong id="fecha-display"></strong>
+</div>
+
+<div class="container">
+
+  <!-- RESUMEN PEDIDO -->
+  <div class="resumen-panel" id="resumen-panel">
+    <div class="res-header">
+      <div class="check-icon"></div>
+      <span>Pedido guardado en Sheets</span>
+    </div>
+    <div class="res-body">
+      <div id="res-lista"></div>
+      <div class="res-total">
+        <div class="tot-card total">
+          <div class="tlabel">Total hoy</div>
+          <div class="tval" id="tc-total">S/0</div>
+        </div>
+        <div class="tot-card yape">
+          <div class="tlabel">Yape</div>
+          <div class="tval" id="tc-yape">S/0</div>
+        </div>
+        <div class="tot-card efec">
+          <div class="tlabel">Efectivo</div>
+          <div class="tval" id="tc-efec">S/0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="historial-section" id="hist-section">
+    <div class="hist-header">
+      <span>Pedidos del día</span>
+    </div>
+    <div id="hist-lista"></div>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div id="form-panel">
+
+    <div class="seccion">
+      <div class="sec-header"><span>Chifa</span><div class="linea"></div></div>
+      <div id="sec-chifa"></div>
+    </div>
+
+    <div class="seccion">
+      <div class="sec-header"><span>Broasters</span><div class="linea"></div></div>
+      <div id="sec-broaster"></div>
+    </div>
+
+    <div class="seccion">
+      <div class="sec-header"><span>Mostritos</span><div class="linea"></div></div>
+      <div id="sec-mostritos"></div>
+    </div>
+
+    <div class="seccion">
+      <div class="sec-header"><span>Caldos</span><div class="linea"></div></div>
+      <div id="sec-caldos"></div>
+    </div>
+
+    <div class="seccion">
+      <div class="sec-header"><span>Sopas</span><div class="linea"></div></div>
+      <div id="sec-sopas"></div>
+    </div>
+
+    <div class="seccion">
+      <div class="sec-header"><span>Extras</span><div class="linea"></div></div>
+      <div id="sec-extras"></div>
+    </div>
+
+    <div class="seccion">
+      <div class="sec-header"><span>Bebidas</span><div class="linea"></div></div>
+      <div id="sec-bebidas"></div>
+    </div>
+
+    <div class="pago-section">
+      <div class="pago-label">Medio de pago</div>
+      <div class="pago-btns">
+        <button class="pago-btn sel-yape" id="btn-yape" onclick="selPago('yape')">Yape / Plin</button>
+        <button class="pago-btn" id="btn-efec" onclick="selPago('efectivo')">Efectivo</button>
+      </div>
+    </div>
+
+    <div class="enviando" id="enviando">Guardando en Google Sheets...</div>
+    <button class="btn-registrar" id="btn-reg" onclick="registrar()">Registrar Pedido</button>
+
+  </div>
+
+  <button class="btn-nuevo" id="btn-nuevo" style="display:none" onclick="nuevoPedido()">+ Nuevo Pedido</button>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkUqUI9pIMQCsOKiwwo-0lZIN6gpSsnB5bMuQIlqBix6_2-gf4rr72tPyXfTB7cEyv/exec";
+
+const menu = {
+  chifa: [
+    {n:'Chaufa pollo', p:9},
+    {n:'Aeropuerto pollo', p:10},
+    {n:'Tallarín chifa', p:12},
+    {n:'Tallarín criollo', p:12},
+    {n:'Combinado', p:16},
+    {n:'Lomo saltado pollo', p:12},
+    {n:'Tortilla de pollo', p:12},
+    {n:'Tortilla de verdura', p:9},
+    {n:'Frijolito saltado', p:12},
+    {n:'Arroz a la cubana', p:8}
+  ],
+  broaster: [
+    {n:'Ala broaster', p:8},
+    {n:'Pierna broaster', p:10},
+    {n:'Pecho broaster', p:12}
+  ],
+  mostritos: [
+    {n:'Ala monster', p:10},
+    {n:'Pierna monster', p:12},
+    {n:'Pecho monster', p:13}
+  ],
+  caldos: [
+    {n:'Caldo de gallina solo', p:8},
+    {n:'Caldo de gallina presa', p:10},
+    {n:'Caldo de gallina pierna', p:12}
+  ],
+  sopas: [
+    {n:'Sopa wantán', p:10},
+    {n:'Sopa de kion', p:12},
+    {n:'Sopa sustancia', p:12}
+  ],
+  extras: [
+    {n:'Hamburguesa pollo', p:4},
+    {n:'Hamburguesa carne', p:4},
+    {n:'Salchipapa', p:6},
+    {n:'Sándwich de pollo', p:5}
+  ],
+  bebidas: [
+    {n:'Concordia', p:1.2},
+    {n:'Personal 296 ml', p:2},
+    {n:'Personal 600 ml', p:3.5},
+    {n:'Gordita 625 ml', p:4},
+    {n:'Gaseosa 1 L', p:4.5},
+    {n:'Gaseosa 1½ L', p:6.5},
+    {n:'Gaseosa 2½ L', p:8.5}
+  ]
+};
+
+let pago = 'yape';
+let historial = [];
+let totales = {total:0, yape:0, efec:0};
+
+// Fecha
+const ahora = new Date();
+document.getElementById('fecha-display').textContent = ahora.toLocaleDateString('es-PE', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+
+function selPago(t) {
+  pago = t;
+  document.getElementById('btn-yape').className = 'pago-btn' + (t==='yape' ? ' sel-yape' : '');
+  document.getElementById('btn-efec').className = 'pago-btn' + (t==='efectivo' ? ' sel-efectivo' : '');
+}
+
+function buildMenu() {
+  const secciones = {chifa:'sec-chifa', broaster:'sec-broaster', mostritos:'sec-mostritos', caldos:'sec-caldos', sopas:'sec-sopas', extras:'sec-extras', bebidas:'sec-bebidas'};
+  Object.keys(secciones).forEach(cat => {
+    const cont = document.getElementById(secciones[cat]);
+    menu[cat].forEach((item, i) => {
+      const id = cat+'_'+i;
+      const div = document.createElement('div');
+      div.className = 'plato-item';
+      div.id = 'row_'+id;
+      div.innerHTML = `
+        <div class="chk-custom" id="chk_${id}" onclick="togglePlato('${id}')"></div>
+        <span class="plato-nombre" onclick="togglePlato('${id}')">${item.n}</span>
+        <span class="plato-precio">S/${item.p.toFixed(2)}</span>
+        <div class="qty-ctrl" id="qty_${id}">
+          <button class="qbtn" onclick="chgQty('${id}',-1)">−</button>
+          <div class="qnum" id="qn_${id}">1</div>
+          <button class="qbtn" onclick="chgQty('${id}',1)">+</button>
+        </div>
+      `;
+      cont.appendChild(div);
+    });
+  });
+}
+
+function togglePlato(id) {
+  const chk = document.getElementById('chk_'+id);
+  const row = document.getElementById('row_'+id);
+  const qty = document.getElementById('qty_'+id);
+  const isChecked = chk.classList.contains('checked');
+  chk.classList.toggle('checked', !isChecked);
+  row.classList.toggle('marcado', !isChecked);
+  qty.classList.toggle('activo', !isChecked);
+}
+
+function chgQty(id, d) {
+  const el = document.getElementById('qn_'+id);
+  el.textContent = Math.max(1, parseInt(el.textContent) + d);
+}
+
+function getSeleccionados() {
+  let items = [];
+  Object.keys(menu).forEach(cat => {
+    menu[cat].forEach((item, i) => {
+      const id = cat+'_'+i;
+      if (document.getElementById('chk_'+id).classList.contains('checked')) {
+        const q = parseInt(document.getElementById('qn_'+id).textContent);
+        items.push({n:item.n, p:item.p, q, sub:parseFloat((item.p*q).toFixed(2))});
+      }
+    });
+  });
+  return items;
+}
+
+function mostrarToast(msg, esError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (esError ? ' error' : '') + ' show';
+  setTimeout(() => t.className = 'toast' + (esError ? ' error' : ''), 3000);
+}
+
+async function registrar() {
+  const items = getSeleccionados();
+  if (items.length === 0) { mostrarToast('Marca al menos un plato', true); return; }
+
+  const subtotal = parseFloat(items.reduce((a,x)=>a+x.sub,0).toFixed(2));
+  const platosTexto = items.map(x => `${x.n} x${x.q} (S/${x.sub.toFixed(2)})`).join(' | ');
+  const fechaHoy = ahora.toLocaleDateString('es-PE');
+  const horaHoy = new Date().toLocaleTimeString('es-PE', {hour:'2-digit', minute:'2-digit'});
+
+  const datos = {
+    fecha: fechaHoy,
+    platos: platosTexto,
+    total: subtotal,
+    pago: pago === 'yape' ? 'Yape/Plin' : 'Efectivo',
+    hora: horaHoy
+  };
+
+  document.getElementById('btn-reg').disabled = true;
+  document.getElementById('enviando').style.display = 'block';
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(datos)
+    });
+
+    totales.total = parseFloat((totales.total + subtotal).toFixed(2));
+    if (pago === 'yape') totales.yape = parseFloat((totales.yape + subtotal).toFixed(2));
+    else totales.efec = parseFloat((totales.efec + subtotal).toFixed(2));
+
+    historial.push({items, pago, subtotal});
+    renderResumen(items, subtotal);
+    mostrarToast('Guardado en Google Sheets');
+
+  } catch(e) {
+    mostrarToast('Error al guardar. Revisa tu conexión.', true);
+    document.getElementById('btn-reg').disabled = false;
+  }
+
+  document.getElementById('enviando').style.display = 'none';
+}
+
+function renderResumen(items, subtotal) {
+  document.getElementById('form-panel').style.display = 'none';
+  document.getElementById('btn-nuevo').style.display = 'block';
+
+  const panel = document.getElementById('resumen-panel');
+  panel.style.display = 'block';
+
+  const lista = document.getElementById('res-lista');
+  lista.innerHTML = '';
+  items.forEach(x => {
+    const d = document.createElement('div');
+    d.className = 'res-fila';
+    d.innerHTML = `<span><span class="nombre">${x.n}</span><span class="qty-badge">x${x.q}</span></span><span>S/ ${x.sub.toFixed(2)}</span>`;
+    lista.appendChild(d);
+  });
+  const tot = document.createElement('div');
+  tot.className = 'res-fila';
+  const badge = pago==='yape' ? '<span class="hist-badge hb-yape">Yape</span>' : '<span class="hist-badge hb-efec">Efectivo</span>';
+  tot.innerHTML = `<span style="font-weight:700">Subtotal${badge}</span><span style="font-weight:700;color:var(--rojo)">S/ ${subtotal.toFixed(2)}</span>`;
+  lista.appendChild(tot);
+
+  document.getElementById('tc-total').textContent = 'S/'+totales.total.toFixed(2);
+  document.getElementById('tc-yape').textContent = 'S/'+totales.yape.toFixed(2);
+  document.getElementById('tc-efec').textContent = 'S/'+totales.efec.toFixed(2);
+
+  if (historial.length > 0) {
+    const hs = document.getElementById('hist-section');
+    hs.style.display = 'block';
+    const hl = document.getElementById('hist-lista');
+    hl.innerHTML = '';
+    historial.forEach((h,i) => {
+      const d = document.createElement('div');
+      d.className = 'hist-item';
+      const badge = h.pago==='yape' ? '<span class="hist-badge hb-yape">Yape</span>' : '<span class="hist-badge hb-efec">Efectivo</span>';
+      d.innerHTML = `<span><span class="hist-num">#${i+1}</span>${h.items.map(x=>x.n+(x.q>1?' x'+x.q:'')).join(', ')}</span><span><span class="hist-monto">S/${h.subtotal.toFixed(2)}</span>${badge}</span>`;
+      hl.appendChild(d);
+    });
+  }
+}
+
+function nuevoPedido() {
+  document.getElementById('form-panel').style.display = 'block';
+  document.getElementById('resumen-panel').style.display = 'none';
+  document.getElementById('btn-nuevo').style.display = 'none';
+  document.getElementById('btn-reg').disabled = false;
+
+  Object.keys(menu).forEach(cat => {
+    menu[cat].forEach((_, i) => {
+      const id = cat+'_'+i;
+      document.getElementById('chk_'+id).classList.remove('checked');
+      document.getElementById('row_'+id).classList.remove('marcado');
+      document.getElementById('qty_'+id).classList.remove('activo');
+      document.getElementById('qn_'+id).textContent = '1';
+    });
+  });
+  pago = 'yape';
+  selPago('yape');
+  window.scrollTo(0,0);
+}
+
+buildMenu();
+</script>
+</body>
+</html>
